@@ -1,0 +1,22 @@
+# Secrets: copy .env.example to backend/thread_smith/.env instead
+.env
+.env.*
+!.env.example
+
+# Local data
+*.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# ADK
+.adk/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
