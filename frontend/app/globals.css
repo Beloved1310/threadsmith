@@ -1,0 +1,714 @@
+/* ThreadSmith: an X-like timeline look. Light by default, dark via the OS. */
+:root {
+  --bg: #f7f9f9;
+  --surface: #ffffff;
+  --surface-2: #eff3f4;
+  --line: #e1e8ed;
+  --text: #0f1419;
+  --muted: #536471;
+  --accent: #1d9bf0;
+  --accent-ink: #ffffff;
+  --good: #00ba7c;
+  --warn: #ffad1f;
+  --bad: #f4212e;
+  --bad-tint: #fdecee;
+  --dry-tint: #fff6e0;
+  --sched-tint: #e3f6ee;
+
+  --copilot-kit-primary-color: var(--accent);
+  --copilot-kit-contrast-color: #ffffff;
+  --copilot-kit-background-color: var(--surface);
+  --copilot-kit-secondary-color: var(--surface-2);
+  --copilot-kit-secondary-contrast-color: var(--text);
+  --copilot-kit-separator-color: var(--line);
+  --copilot-kit-muted-color: var(--muted);
+
+  /* Chat sidebar width, draggable via ChatResizeHandle. */
+  --chat-width: 28rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000;
+    --surface: #16181c;
+    --surface-2: #202327;
+    --line: #2f3336;
+    --text: #e7e9ea;
+    --muted: #71767b;
+    --bad-tint: #2a1215;
+    --dry-tint: #2a2210;
+    --sched-tint: #0f2a20;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  height: 100%;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- App shell ---------- */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.header-spacer {
+  flex: 1;
+}
+
+.ghost-button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ghost-button:hover {
+  background: var(--surface-2);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-chip img,
+.user-chip .avatar-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.user-chip .avatar-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.card h2 {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+/* ---------- Stepper ---------- */
+
+.stepper {
+  list-style: none;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.step .dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  background: var(--surface-2);
+}
+
+.step.done {
+  color: var(--text);
+}
+
+.step.done .dot {
+  background: var(--good);
+  color: #fff;
+}
+
+.step.current {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.step.current .dot {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ---------- Thread board ---------- */
+
+.board {
+  padding: 0;
+  overflow: hidden;
+}
+
+.board-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.board-head h2 {
+  margin: 0;
+}
+
+.board-meta {
+  color: var(--muted);
+  font-size: 13px;
+  flex: 1;
+}
+
+.board-meta .bad {
+  color: var(--bad);
+}
+
+.chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chip-dry {
+  background: var(--dry-tint);
+  color: var(--warn);
+}
+
+.chip-scheduled {
+  background: var(--sched-tint);
+  color: var(--good);
+}
+
+.thread {
+  list-style: none;
+}
+
+.tweet {
+  display: flex;
+  gap: 12px;
+  padding: 12px 18px 0;
+}
+
+.tweet:last-child {
+  padding-bottom: 12px;
+}
+
+.tweet-over {
+  background: var(--bad-tint);
+}
+
+.tweet-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tweet-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+/* The connector X draws between posts in a thread. */
+.tweet-line {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  margin-top: 4px;
+  background: var(--line);
+}
+
+.tweet-body {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 12px;
+}
+
+.tweet-head {
+  display: flex;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.tweet-name {
+  font-weight: 700;
+}
+
+.tweet-pos {
+  color: var(--muted);
+}
+
+.tweet-text {
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 2px 0 8px;
+}
+
+.tweet-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.quick-edits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quick-edits button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quick-edits button:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.quick-edits button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.char-ring {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
+}
+
+.char-ring svg {
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2.5;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.char-ring.near .ring-fill {
+  stroke: var(--warn);
+}
+
+.char-ring.near {
+  color: var(--warn);
+}
+
+.char-ring.over .ring-fill {
+  stroke: var(--bad);
+}
+
+.char-ring.over {
+  color: var(--bad);
+  font-weight: 700;
+}
+
+.thread-empty {
+  padding-bottom: 16px;
+}
+
+.thread-empty p {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 4px 18px 0;
+}
+
+.tweet-skeleton .tweet-avatar {
+  background: var(--surface-2);
+}
+
+.skeleton-line {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  margin: 8px 0;
+}
+
+/* ---------- History ---------- */
+
+.history {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.history-hook {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history ol {
+  margin: 8px 0 4px 22px;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- Activity feed ---------- */
+
+.activity-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.activity-toggle .badge {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.activity-toggle .chevron {
+  margin-left: auto;
+  transition: transform 0.15s ease;
+}
+
+.activity-toggle .chevron.open {
+  transform: rotate(90deg);
+}
+
+.activity-list {
+  list-style: none;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-item {
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.activity-item.error {
+  background: var(--bad-tint);
+}
+
+.activity-item .tool-name {
+  font-family: var(--font-mono), monospace;
+  font-weight: 600;
+}
+
+.activity-item .status {
+  float: right;
+  color: var(--muted);
+}
+
+.activity-item pre {
+  font-family: var(--font-mono), monospace;
+  font-size: 11.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-top: 6px;
+}
+
+.activity-empty {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* ---------- Sign-in ---------- */
+
+.signin-screen {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.signin-card {
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.signin-card h1 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+}
+
+.signin-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.signin-note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.guest-button {
+  border: none;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ---------- Approval card (HITL) ---------- */
+
+.confirm-card {
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  font-size: 13.5px;
+}
+
+.confirm-card pre {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.confirm-thread {
+  margin: 8px 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.confirm-thread small {
+  display: block;
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+}
+
+.confirm-thread .bad small {
+  color: var(--bad);
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.confirm-buttons button {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-approve {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.confirm-reject {
+  background: none;
+  border: 1px solid var(--line) !important;
+  color: var(--muted);
+}
+
+.confirm-done {
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ---------- Chat sidebar resize ---------- */
+
+.chat-resize-handle {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: var(--chat-width);
+  width: 6px;
+  margin-right: -3px;
+  cursor: col-resize;
+  z-index: 31; /* above .copilotKitSidebar's z-index: 30 */
+  transition: background-color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .copilotKitSidebar .copilotKitWindow {
+    width: var(--chat-width) !important;
+  }
+
+  .copilotKitSidebarContentWrapper.sidebarExpanded {
+    margin-right: var(--chat-width) !important;
+  }
+
+  .chat-resize-handle {
+    display: block;
+  }
+}
+
+.chat-resize-handle:hover,
+.chat-resize-handle:active {
+  background-color: var(--accent);
+  opacity: 0.4;
+}
+
+@media (max-width: 640px) {
+  .app-subtitle {
+    display: none;
+  }
+}
