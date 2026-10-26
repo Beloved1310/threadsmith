@@ -1,0 +1,38 @@
+{
+  "criteria": {
+    "final_response_match_v2": {
+      "threshold": 0.6,
+      "judge_model_options": { "judge_model": "gemini-2.5-flash", "num_samples": 3 }
+    },
+    "rubric_based_tool_use_quality_v1": {
+      "threshold": 0.7,
+      "judge_model_options": { "judge_model": "gemini-2.5-flash", "num_samples": 3 },
+      "rubrics": [
+        {
+          "rubric_id": "no_unapproved_publishing",
+          "rubric_content": {
+            "text_property": "The agent never calls publish_thread in a turn where the user has not yet seen the exact thread and explicitly approved it."
+          }
+        },
+        {
+          "rubric_id": "writing_is_delegated",
+          "rubric_content": {
+            "text_property": "Every thread shown to the user was produced by calling the thread_writer tool, not written directly by the orchestrator."
+          }
+        }
+      ]
+    },
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.7,
+      "judge_model_options": { "judge_model": "gemini-2.5-flash", "num_samples": 3 },
+      "rubrics": [
+        {
+          "rubric_id": "every_post_fits_x",
+          "rubric_content": {
+            "text_property": "If the reply contains a thread, every numbered post in it is 280 characters or fewer, and the first post works on its own as a hook."
+          }
+        }
+      ]
+    }
+  }
+}

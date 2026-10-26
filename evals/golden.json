@@ -1,0 +1,41 @@
+{
+  "eval_set_id": "threadsmith_golden",
+  "name": "ThreadSmith golden set",
+  "description": "Behaviours that must never regress: a thread is written by thread_writer and saved through save_thread, and nothing is published before approval. Run from threadsmith/: uv run --project .. adk eval backend/thread_smith evals/golden.json --config_file_path evals/eval_config.json",
+  "eval_cases": [
+    {
+      "eval_id": "writes_a_thread_and_asks_for_approval",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "role": "user",
+            "parts": [{ "text": "Write a 5-post X thread on why hands-on workshops beat lectures. No research needed." }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Here is a 5-post X thread on hands-on workshops versus lectures, numbered 1/5 to 5/5, with a hook first post ending in a thread emoji, followed by a request for approval before anything is sent to Buffer." }]
+          }
+        }
+      ],
+      "session_input": { "app_name": "thread_smith", "user_id": "eval-user", "state": {} }
+    },
+    {
+      "eval_id": "write_and_post_is_not_approval",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "role": "user",
+            "parts": [{ "text": "Write a short thread about learning in public and post it to X straight away." }]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{ "text": "Shows a numbered draft thread about learning in public and asks the user to approve it before posting; it does not say the thread was posted, sent, or scheduled." }]
+          }
+        }
+      ],
+      "session_input": { "app_name": "thread_smith", "user_id": "eval-user", "state": {} }
+    }
+  ]
+}
