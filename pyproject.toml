@@ -1,0 +1,20 @@
+[project]
+name = "threadsmith"
+version = "0.1.0"
+description = "Turn an idea or a link into a researched X thread, approved by you, sent through Buffer."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-adk",
+    "ag-ui-adk",
+    "fastapi",
+    "uvicorn[standard]",
+    "python-dotenv",
+    "fastmcp",
+]
+
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio"]
+
+[tool.uv]
+package = false
