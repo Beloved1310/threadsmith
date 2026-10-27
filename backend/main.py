@@ -4,12 +4,19 @@ Run from threadsmith/:  uv run --project .. uvicorn backend.main:app --port 8010
 """
 
 import logging
+import os
 import pathlib
+import re
 
 from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from google.adk.sessions import (
+    BaseSessionService,
+    InMemorySessionService,
+    VertexAiSessionService,
+)
 
 log = logging.getLogger(__name__)
 
@@ -27,8 +34,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Local only: in-memory sessions, which is all a single-user demo needs.
-adk_agent = ADKAgent.from_app(adk_app, user_id="threadsmith-user")
+# On Agent Runtime, APP_URL is the engine's passthrough URL:
+#   https://<loc>-aiplatform.googleapis.com/reasoningEngines/v1/
+#   projects/<project>/locations/<loc>/reasoningEngines/<id>/api
+_ENGINE_RE = re.compile(r"projects/([^/]+)/locations/([^/]+)/reasoningEngines/([^/]+)")
+
+
+def _session_service() -> BaseSessionService:
+    """Agent Engine sessions on Agent Runtime, in-memory locally.
+
+    A deployed container is wiped on scale-to-zero, so in-memory sessions
+    would lose the thread draft between requests.
+    """
+    match = _ENGINE_RE.search(os.environ.get("APP_URL", ""))
+    if not match:
+        return InMemorySessionService()
+    project, location, engine_id = match.groups()
+    log.info("Using VertexAiSessionService for %s", match.group(0))
+    return VertexAiSessionService(
+        project=project, location=location, agent_engine_id=engine_id
+    )
+
+
+adk_agent = ADKAgent.from_app(
+    adk_app,
+    user_id="threadsmith-user",
+    session_service=_session_service(),
+)
 add_adk_fastapi_endpoint(app, adk_agent, path="/api/adk")
 
 
