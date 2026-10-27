@@ -20,3 +20,6 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# agents-cli deploy lock (deployment_metadata.json itself is committed)
+deployment_metadata.json.lock

@@ -1,0 +1,15 @@
+# What a deploy must not upload. agents-cli deploy and gcloud read this file in
+# preference to .gitignore, so it includes .gitignore rather than restating it.
+#!include:.gitignore
+
+.git
+.gitignore
+.gcloudignore
+
+# Deployed separately to Cloud Run; node_modules alone is hundreds of MB.
+/frontend/
+
+# Not needed at runtime.
+/tests/
+/evals/
+/docs/
