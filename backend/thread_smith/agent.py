@@ -41,10 +41,10 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # Pinned per role, overridable from env (see the parent project's LEARNINGS
-# on -latest aliases going 404 overnight).
-RESEARCH_MODEL = os.environ.get("RESEARCH_MODEL", "gemini-2.5-flash")
-WRITER_MODEL = os.environ.get("WRITER_MODEL", "gemini-2.5-flash")
-ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "gemini-2.5-flash")
+# on -latest aliases going 404 overnight). gemini-2.5-flash now 404s on Vertex.
+RESEARCH_MODEL = os.environ.get("RESEARCH_MODEL", "gemini-3-flash-preview")
+WRITER_MODEL = os.environ.get("WRITER_MODEL", "gemini-3-flash-preview")
+ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "gemini-3-flash-preview")
 
 
 # --- Specialist: research -----------------------------------------------------
