@@ -115,7 +115,7 @@ ORG_ID="$(gcloud projects get-ancestors "$PROJECT_ID" --format='value(id,type)' 
 if [ -n "$ORG_ID" ]; then
   TRUST_DOMAIN="agents.global.org-$ORG_ID.system.id.goog"
 else
-  TRUST_DOMAIN="agents.global.project-$PROJECT_NUMBER.system.id.goog"
+  TRUST_DOMAIN="agents.global.proj-$PROJECT_NUMBER.system.id.goog"
 fi
 AGENTS="principalSet://$TRUST_DOMAIN/attribute.platformContainer/aiplatform/projects/$PROJECT_NUMBER"
 
