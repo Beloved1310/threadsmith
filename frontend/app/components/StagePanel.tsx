@@ -4,6 +4,7 @@ import { useThreadState } from "./ThreadBoard";
 
 const STAGES: { key: string; label: string }[] = [
   { key: "idea", label: "Idea" },
+  { key: "consulting_memory", label: "Consulting memory" },
   { key: "researching", label: "Research" },
   { key: "drafting", label: "Write" },
   { key: "awaiting_approval", label: "Approve" },
