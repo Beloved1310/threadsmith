@@ -73,4 +73,7 @@ Note `adk eval` exits 0 even when cases fail: read the summary line.
   `.env.example`: those are committed.
 - Images are not part of v1. Buffer needs a public HTTPS URL for media, which
   means the parent repo's GCS signing setup; add it once text threads work.
-- Guardrails (Model Armor, DLP) from the parent's Lab 3 are not wired in here.
+- Model Armor guardrails (`backend/thread_smith/guardrails.py`) switch on with
+  `MODEL_ARMOR_TEMPLATE_ID`. They need a regional `GOOGLE_CLOUD_LOCATION`
+  (`us-central1`) and turn streaming off. DLP redaction is written but not
+  wired in yet.
