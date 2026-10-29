@@ -7,10 +7,12 @@ import logging
 import pathlib
 from typing import Optional
 
+from ag_ui.core import RunAgentInput
 from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from google.adk.agents.run_config import RunConfig, StreamingMode
 from google.adk.memory import BaseMemoryService, VertexAiMemoryBankService
 from google.adk.sessions import (
     BaseSessionService,
@@ -22,7 +24,7 @@ log = logging.getLogger(__name__)
 
 load_dotenv(pathlib.Path(__file__).parent / "thread_smith" / ".env")
 
-from backend.thread_smith import db  # noqa: E402  (needs .env first)
+from backend.thread_smith import db, guardrails  # noqa: E402  (needs .env first)
 from backend.thread_smith.agent import app as adk_app  # noqa: E402
 from backend.thread_smith.engine import agent_engine  # noqa: E402
 
@@ -69,11 +71,22 @@ def _memory_service() -> Optional[BaseMemoryService]:
     )
 
 
+def _unstreamed_run_config(input: RunAgentInput) -> RunConfig:
+    """ADKAgent's default run config with streaming off.
+
+    ADKAgent streams (SSE) by default, and Model Armor does not screen streamed
+    Gemini calls: an injection passes with no block and no error.
+    """
+    default = adk_agent._default_run_config(input)
+    return default.model_copy(update={"streaming_mode": StreamingMode.NONE})
+
+
 adk_agent = ADKAgent.from_app(
     adk_app,
     user_id="threadsmith-user",
     session_service=_session_service(),
     memory_service=_memory_service(),
+    run_config_factory=_unstreamed_run_config if guardrails.MA_TEMPLATE else None,
 )
 add_adk_fastapi_endpoint(app, adk_agent, path="/api/adk")
 
