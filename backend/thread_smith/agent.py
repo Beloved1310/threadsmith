@@ -28,7 +28,7 @@ from google.adk.tools.function_tool import FunctionTool
 from google.adk.tools.skill_toolset import SkillToolset
 from google.adk.tools.tool_context import ToolContext
 
-from . import db
+from . import db, guardrails
 from .engine import agent_engine
 from .tools import publish_thread, save_thread
 
@@ -57,7 +57,7 @@ MEMORY_ENABLED = agent_engine() is not None
 # built-in search tool with function tools in one model call.
 research_agent = Agent(
     name="research_agent",
-    model=RESEARCH_MODEL,
+    model=guardrails.model(RESEARCH_MODEL),
     description="Researches facts, numbers and context for a thread topic or a linked article.",
     instruction="""Research the given topic or URL with google_search and return
 concise notes a thread can be built from: the core claim, 4-8 concrete facts
@@ -65,12 +65,16 @@ concise notes a thread can be built from: the core claim, 4-8 concrete facts
 and the source site for each fact. No drafting, just notes.""",
     tools=[google_search],
     output_key="research_notes",
+    # Called as an AgentTool: its input is the orchestrator's text, not the
+    # user's, so only the reply is screened.
+    generate_content_config=guardrails.content_config(screen_input=False),
+    after_model_callback=guardrails.friendly_block,
 )
 
 # --- Specialist: thread writer -------------------------------------------------
 thread_writer = Agent(
     name="thread_writer",
-    model=WRITER_MODEL,
+    model=guardrails.model(WRITER_MODEL),
     description="Writes and revises X threads and saves them post by post.",
     instruction="""You write X (Twitter) threads.
 
@@ -96,6 +100,8 @@ Rules:
         load_skill_from_dir(SKILLS_DIR / "brand-voice"),
     ]), save_thread],
     output_key="current_draft",
+    generate_content_config=guardrails.content_config(screen_input=False),
+    after_model_callback=guardrails.friendly_block,
 )
 
 # --- Publishing -----------------------------------------------------------------
@@ -161,7 +167,7 @@ _MEMORY_STEP = """0. Before drafting a new thread, call load_memory with the top
 # --- Orchestrator -------------------------------------------------------------
 root_agent = Agent(
     name="thread_smith",
-    model=ORCHESTRATOR_MODEL,
+    model=guardrails.model(ORCHESTRATOR_MODEL),
     description="Turns an idea or a link into a researched X thread and publishes it via Buffer.",
     instruction=f"""You orchestrate turning an idea or a link into an X thread.
 You never research or write posts yourself: you route to specialist tools.
@@ -199,8 +205,11 @@ Posting rules (strict):
         AgentTool(agent=thread_writer),
         publish_tool,
     ],
+    # The only agent that sees the user's own text, so both directions are screened.
+    generate_content_config=guardrails.content_config(),
     before_agent_callback=_init_stage,
     after_tool_callback=_track_stage,
+    after_model_callback=guardrails.friendly_block,
     after_agent_callback=_stage_after_agent,
 )
 
