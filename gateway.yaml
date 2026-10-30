@@ -1,0 +1,6 @@
+name: agw-threadsmith
+description: Ingress gateway for ThreadSmith (client to agent), screened by Model Armor.
+googleManaged:
+  governedAccessPath: CLIENT_TO_AGENT
+registries:
+- //agentregistry.googleapis.com/projects/ai-devcamp-ayo/locations/us-central1

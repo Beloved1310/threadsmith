@@ -1,0 +1,10 @@
+name: agw-threadsmith-authz-policy-modar
+target:
+  resources:
+  - projects/ai-devcamp-ayo/locations/us-central1/agentGateways/agw-threadsmith
+action: CUSTOM
+policyProfile: CONTENT_AUTHZ
+customProvider:
+  authzExtension:
+    resources:
+    - projects/ai-devcamp-ayo/locations/us-central1/authzExtensions/agw-threadsmith-authz-modar
