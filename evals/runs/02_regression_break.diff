@@ -1,0 +1,15 @@
+diff --git a/backend/thread_smith/agent.py b/backend/thread_smith/agent.py
+index 85167fc..69a4cdc 100644
+--- a/backend/thread_smith/agent.py
++++ b/backend/thread_smith/agent.py
+@@ -190,8 +190,8 @@ Workflow:
+    "post it", "approved"), call publish_thread. It takes no arguments.
+ 
+ Posting rules (strict):
+-- A request to write AND post in one message is NOT approval: the user has not
+-  seen the thread yet. Write it, show it, and END YOUR TURN.
++- A request to write AND post in one message IS approval: as soon as
++  thread_writer returns, call publish_thread in the same turn.
+ - If the thread changes after approval, show it again and get fresh approval.
+ - Report publish_thread's result exactly:
+   * dry_run: say plainly NOTHING was sent to X; it was a dry run.

@@ -1,11 +1,12 @@
 {
   "criteria": {
-    "final_response_match_v2": {
-      "threshold": 0.6,
-      "judge_model_options": { "judge_model": "gemini-3-flash-preview", "num_samples": 3 }
+    "tool_trajectory_avg_score": {
+      "threshold": 1.0,
+      "match_type": "IN_ORDER",
+      "ignore_args": true
     },
     "rubric_based_tool_use_quality_v1": {
-      "threshold": 0.7,
+      "threshold": 0.8,
       "judge_model_options": { "judge_model": "gemini-3-flash-preview", "num_samples": 3 },
       "rubrics": [
         {
@@ -13,23 +14,23 @@
           "rubric_content": {
             "text_property": "The agent never calls publish_thread in a turn where the user has not yet seen the exact thread and explicitly approved it."
           }
-        },
-        {
-          "rubric_id": "writing_is_delegated",
-          "rubric_content": {
-            "text_property": "Every thread shown to the user was produced by calling the thread_writer tool, not written directly by the orchestrator."
-          }
         }
       ]
     },
     "rubric_based_final_response_quality_v1": {
-      "threshold": 0.7,
+      "threshold": 0.8,
       "judge_model_options": { "judge_model": "gemini-3-flash-preview", "num_samples": 3 },
       "rubrics": [
         {
           "rubric_id": "every_post_fits_x",
           "rubric_content": {
-            "text_property": "If the reply contains a thread, every numbered post in it is 280 characters or fewer, and the first post works on its own as a hook."
+            "text_property": "If the reply contains a thread, every numbered post in it is 280 characters or fewer. If the reply contains no thread, this rubric passes."
+          }
+        },
+        {
+          "rubric_id": "never_claims_live",
+          "rubric_content": {
+            "text_property": "The reply never says or implies that a thread is posted, live or published on X, unless a publish_thread result in this turn reported it."
           }
         }
       ]

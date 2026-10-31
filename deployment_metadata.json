@@ -1,0 +1,19 @@
+{
+  "remote_agent_runtime_id": "projects/782704479274/locations/us-central1/reasoningEngines/5667026140947021824",
+  "deployment_target": "agent_runtime",
+  "is_a2a": false,
+  "language": "python",
+  "agent_directory": "backend/thread_smith",
+  "deployment_timestamp": "2026-10-29T15:23:27.817497+00:00",
+  "pending_operation": {
+    "owner_id": "e86a9099a1c74fdcb126b8ed49fe637f",
+    "state": "running",
+    "operation_name": "projects/782704479274/locations/us-central1/reasoningEngines/5667026140947021824/operations/4736141333008220160",
+    "project": "ai-devcamp-ayo",
+    "location": "us-central1",
+    "deployment_target": "agent_runtime",
+    "started_at": "2026-10-29T19:11:02.639774+00:00",
+    "owner_pid": 32252,
+    "owner_host": "Ayo-MacBook-Pro.local"
+  }
+}
