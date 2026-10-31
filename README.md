@@ -6,6 +6,13 @@ approved by you, then sent to X as one real thread through Buffer.
 A sibling of Social Spark (the parent repo): same ADK multi-agent shape, same
 AG-UI + CopilotKit frontend stack, specialised for one format.
 
+## Live on X
+
+A thread ThreadSmith researched, wrote and sent through Buffer, posted as one
+connected thread (1/6, 2/6, ...):
+
+![A 6-post ThreadSmith thread live on X: the ORM "Ghost Query" hook and Joel Spolsky's Law of Leaky Abstractions](docs/x-thread-published.png)
+
 ## How it differs from Social Spark
 
 | | Social Spark | ThreadSmith |
